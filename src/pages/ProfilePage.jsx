@@ -26,21 +26,21 @@ const ProfilePage = ({ user, onNavigate }) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
-
+  
     if (!db) {
       setMessage("Database service is not available.");
       setLoading(false);
       return;
     }
-
+  
     if (!user || !user.uid) {
       setMessage("User not authenticated.");
       setLoading(false);
       return;
     }
-
+  
     try {
-      const userDocRef = doc(db, `/artifacts/${appId}/users/${user.uid}/profile`, 'userData');
+      const userDocRef = doc(db, 'users', user.uid);
       await setDoc(userDocRef, {
         name,
         email,
@@ -53,15 +53,16 @@ const ProfilePage = ({ user, onNavigate }) => {
         gapCertified,
         updatedAt: Timestamp.now()
       }, { merge: true });
+  
       setMessage('Profile updated successfully!');
     } catch (error) {
       console.error("Error updating profile:", error);
       setMessage('Failed to update profile: ' + error.message);
     }
-
+  
     setLoading(false);
   };
-
+  
   if (!user) return <LoadingSpinner message="Loading profile..." />;
 
   return (

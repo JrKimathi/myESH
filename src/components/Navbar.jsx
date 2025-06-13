@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
+import { getAuth } from "firebase/auth";
 import {
     BarChart3, Map, TrendingUp, Rss, BookOpen,
     ShoppingCart, LifeBuoy, Moon, Sun, UserCircle
 } from 'lucide-react';
-import MyEshLogo from './MyEshLogo'; // Make sure this component exists
+import MyEshLogo from './MyEshLogo';
 import {
     DEEP_TEAL, TEXT_SECONDARY, SOFT_SAGE
 } from '../utils/colors';
 
-const Navbar = ({ user, onNavigate, onSignOut, authInstance, toggleTheme, currentTheme, userId }) => {
+const authInstance = getAuth()
+
+const Navbar = ({ user, onNavigate, onSignOut, toggleTheme, currentTheme, userId }) => {
     const [showDropdown, setShowDropdown] = useState(false);
     const displayName = user?.name || user?.email || "User";
 

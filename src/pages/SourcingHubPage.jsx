@@ -19,7 +19,6 @@ const SourcingHubPage = ({ onNavigate }) => {
 
   const allOffers = [...buyerOffers, ...sellerOffers].sort((a, b) => new Date(b.validUntil) - new Date(a.validUntil));
 
-  // Dynamic select options derived from offers
   const crops = Array.from(new Set(allOffers.map(o => o.crop)));
   const roles = Array.from(new Set(allOffers.map(o => o.type === 'buy' ? 'Buyer' : 'Seller')));
   const grades = Array.from(new Set(allOffers.map(o => o.grade))).map(g => `Grade ${g}`);

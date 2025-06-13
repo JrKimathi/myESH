@@ -1,32 +1,79 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
 import InputField from '../components/InputField';
 import LoadingSpinnerSmall from '../components/LoadingSpinnerSmall';
 import MyEshLogo from '../components/MyEshLogo';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
-const LoginPage = ({ onNavigate, authInstance }) => {
+
+const LoginPage = ({ onNavigate, onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
+    const getFriendlyFirebaseError = (code) => {
+        switch (code) {
+            case 'auth/invalid-email':
+                return 'Please enter a valid email address.';
+            case 'auth/user-disabled':
+                return 'This account has been disabled. Contact support.';
+            case 'auth/user-not-found':
+            case 'auth/invalid-credential':
+            case 'auth/wrong-password':
+                return 'Incorrect email or password.';
+            case 'auth/too-many-requests':
+                return 'Too many attempts. Please wait and try again later.';
+            case 'auth/popup-closed-by-user':
+                return 'Google sign-in was cancelled.';
+            case 'auth/popup-blocked':
+                return 'Popup blocked. Please allow popups and try again.';
+            default:
+                return 'An unexpected error occurred. Please try again.';
+        }
+    };
+
+
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
-        if (!authInstance) {
-            setError("Authentication service is not available.");
-            setLoading(false);
-            return;
-        }
+
         try {
-            await signInWithEmailAndPassword(authInstance, email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            onLogin({ uid: user.uid, email: user.email });
+
         } catch (err) {
-            setError(err.message);
-            console.error("Login error:", err);
+            const friendlyMessage = getFriendlyFirebaseError(err.code);
+            setError(friendlyMessage);
         }
+
         setLoading(false);
     };
+
+    const handleGoogleLogin = async () => {
+        setError('');
+        setLoading(true);
+
+        const provider = new GoogleAuthProvider();
+
+        try {
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+
+            onLogin({ uid: user.uid, email: user.email, name: user.displayName });
+        } catch (err) {
+            const friendlyMessage = getFriendlyFirebaseError(err.code);
+            setError(friendlyMessage);
+        }
+
+        setLoading(false);
+    };
+
+
 
     return (
         <div className="flex items-center justify-center min-h-screen">
@@ -44,6 +91,16 @@ const LoginPage = ({ onNavigate, authInstance }) => {
                         {loading ? <LoadingSpinnerSmall /> : 'Sign In'}
                     </button>
                 </form>
+                <div className="flex items-center justify-center mt-4">
+                    <button
+                        onClick={handleGoogleLogin}
+                        disabled={loading}
+                        className="flex items-center justify-center w-full py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-60"
+                    >
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5 mr-2" />
+                        Sign in with Google
+                    </button>
+                </div>
                 <p className="text-center text-sm text-gray-500 mt-4">
                     Don't have an account?{' '}
                     <button onClick={() => onNavigate('register')} className="text-teal-600 hover:underline">Sign up</button>
