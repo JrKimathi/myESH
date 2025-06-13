@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 import InputField from '../components/InputField';
 import LoadingSpinnerSmall from '../components/LoadingSpinnerSmall';
@@ -12,6 +13,9 @@ const LoginPage = ({ onNavigate, onLogin }) => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showResetModal, setShowResetModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+
 
     const getFriendlyFirebaseError = (code) => {
         switch (code) {
@@ -54,6 +58,28 @@ const LoginPage = ({ onNavigate, onLogin }) => {
         setLoading(false);
     };
 
+    const handlePasswordReset = async () => {
+        if (!email) {
+            setError('Please enter your email address to reset your password.');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            await sendPasswordResetEmail(auth, email);
+            setModalMessage('Password reset email sent. Please check your inbox.');
+            setShowResetModal(true);
+        } catch (err) {
+            const friendlyMessage = getFriendlyFirebaseError(err.code);
+            setError(friendlyMessage);
+        }
+
+        setLoading(false);
+    };
+
+
     const handleGoogleLogin = async () => {
         setError('');
         setLoading(true);
@@ -91,6 +117,20 @@ const LoginPage = ({ onNavigate, onLogin }) => {
                         {loading ? <LoadingSpinnerSmall /> : 'Sign In'}
                     </button>
                 </form>
+
+                <div className="text-right">
+                    <button
+                        type="button"
+                        onClick={handlePasswordReset}
+                        className="text-sm text-teal-600 hover:underline mt-1"
+                        disabled={loading}
+                    >
+                        Forgot password?
+                    </button>
+                </div>
+
+
+
                 <div className="flex items-center justify-center mt-4">
                     <button
                         onClick={handleGoogleLogin}
@@ -106,6 +146,22 @@ const LoginPage = ({ onNavigate, onLogin }) => {
                     <button onClick={() => onNavigate('register')} className="text-teal-600 hover:underline">Sign up</button>
                 </p>
             </div>
+
+            {showResetModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+                        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Email Sent</h2>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{modalMessage}</p>
+                        <button
+                            onClick={() => setShowResetModal(false)}
+                            className="mt-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded"
+                        >
+                            OK
+                        </button>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };
