@@ -6,7 +6,6 @@ MyESH is a comprehensive agricultural marketplace and export supply hub connecti
 
 https://my-esh.vercel.app/
 
-Note: Replace the above URL with your actual deployed application link.
 
 ## Overview
 
