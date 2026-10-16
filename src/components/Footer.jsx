@@ -1,4 +1,3 @@
-// FILE: src/components/Footer.jsx
 import React from 'react';
 import MyEshLogo from './MyEshLogo';
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react'; // or any icon library you prefer
+import { Eye, EyeOff } from 'lucide-react'; 
 
 const defaultInputStyles = `block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-teal-700 focus:border-teal-700 sm:text-sm bg-white dark:bg-gray-800 dark:text-white`;
 

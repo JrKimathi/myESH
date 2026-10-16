@@ -1,4 +1,3 @@
-// FILE: src/components/SelectField.jsx
 import React from 'react';
 
 const SelectField = ({ options, placeholder, value, onChange }) => (
